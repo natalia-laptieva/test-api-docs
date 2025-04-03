@@ -1,0 +1,507 @@
+openapi: 3.0.0
+info:
+  title: Semrush API
+  version: 1.0.0
+  description: |
+    ## Overview
+      The .Trends API offers a robust array of data related to website traffic and market trends. With access to the .Trends API, you can easily pull raw Semrush .Trends data straight into your in-house reports or systems.
+
+      You can integrate the .Trends API with:
+      
+      * Dashboards: Enterprise portals, CRMs, ERPs
+      * Reporting software: Tableau, Power BI, and more
+      * Spreadsheets: Google Sheets and Microsoft Excel
+      * Other custom in-house analytics systems
+      
+    ## Key benefits
+    
+    * Consolidate all your data sources into one location for easier analysis and quicker market and competitive insights.
+    * Access your data from a variety of platforms for convenient visualization and streamlined decision-making.
+    * Automate and customize your data reporting to quickly reveal the unique insights your business needs to take the lead.
+    * Make detailed, customizable data queries to extract precisely the information you need, enhancing your analysis capabilities.
+    * Accelerate the development and deployment of data-driven applications by integrating robust sets of API data directly into your software.
+
+servers:
+  - url: https://api.semrush.com
+
+tags:
+  - name: Site Audit
+    description: |
+      This request lets you enable the Site Audit Tool for a project to schedule audits, include or exclude pages from the crawl, and set the number of pages to crawl.
+      [About the Site Audit Configuration](https://www.semrush.com/kb/1032-site-audit-configuration/)
+  - name: Overview reports
+    description: Overview reports
+  - name: Projects
+    description: Projects version 4
+
+paths:
+  /management/v1/projects/{ID}/siteaudit/enable:
+    post:
+      summary: Enables the Site Audit Tool for a project.
+      tags:
+        - Site Audit
+      description: |
+        This request lets you enable the Site Audit Tool for a project to schedule audits, include or exclude pages from the crawl, and set the number of pages to crawl.
+        [About the Site Audit Configuration](https://www.semrush.com/kb/1032-site-audit-configuration/)
+      parameters:
+        - name: ID
+          in: path
+          description: Project ID. Learn how to get your project ID.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key for your Semrush account.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  description: The project URL.
+                scheduleDay:
+                  type: integer
+                  description: Specifies the day of the week (from 1 to 7) for periodic execution; use 8 for manual start.
+                notify:
+                  type: boolean
+                  description: Specifies whether an email notification is sent after the audit is completed.
+                allow:
+                  type: array
+                  items:
+                    type: string
+                  description: Masks the Allow directive in the project.
+                disallow:
+                  type: array
+                  items:
+                    type: string
+                  description: Masks the Disallow directive in the project.
+                pageLimit:
+                  type: integer
+                  description: The number of crawled pages.
+                userAgentType:
+                  type: integer
+                  description: |
+                    The type of user agent. Available values:
+                    8: SiteAuditBot Mobile
+                    7: SiteAuditBot Desktop
+                    3: GoogleBot Mobile
+                    2: GoogleBot Desktop
+                    9: OpenAl-Search
+                removedParameters:
+                  type: array
+                  items:
+                    type: string
+                  description: Specifies URL parameters to be excluded from the audit scope.
+                crawlSubdomains:
+                  type: boolean
+                  description: |
+                    Specifies whether to crawl subdomains of the selected domain. Available values:
+                    True: SemrushBot will crawl the selected domain and its subdomains.
+                    False: SemrushBot will crawl only the selected domain.
+                respectCrawlDelay:
+                  type: boolean
+                  description: |
+                    Specifies whether SemrushBot will follow the Crawl-delay directive in robots.txt. Available values:
+                    True: SemrushBot will follow the Crawl-delay directive in robots.txt.
+                    False: SemrushBot will crawl pages with a one-second interval.
+      responses:
+        '200':
+          description: Site Audit Tool enabled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Site Audit Tool enabled."
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input parameters."
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid API key."
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Project not found."
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error."
+  /reports/v1/projects/{ID}/siteaudit/snapshots:
+    get:
+      summary: Get list of campaign snapshots
+      tags:
+        - Site Audit
+      description: |
+        This request lets you get a list of previous audit IDs along with their completion dates.
+      parameters:
+        - name: ID
+          in: path
+          description: Project ID. Learn how to get your project ID.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key for your Semrush account.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of campaign snapshots.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        snapshot_id:
+                          type: string
+                          description: The snapshot ID.
+                        finish_date:
+                          type: integer
+                          description: The timestamp in the Unix format showing when the last audit was completed.
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input parameters."
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid API key."
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Project not found."
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error."
+
+  /:
+    get:
+      summary: Domain Overview (All Databases)
+      tags:
+        - Overview reports
+      description: >
+        Returns keyword rankings and metrics for the specified domain from all available regional databases.  
+        Costs 10 API units per line of info.  
+        [About the Domain Overview report ›](https://www.semrush.com/kb/254-domain-overview)
+
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [domain_ranks]
+            example: domain_ranks
+          description: Report type. Must be `domain_ranks`.
+
+        - in: query
+          name: key
+          required: true
+          schema:
+            type: string
+            example: API_KEY
+          description: >
+            API key from your [Profile page](https://www.semrush.com/user/profile/).
+
+        - in: query
+          name: domain
+          required: true
+          schema:
+            type: string
+            example: apple.com
+          description: Domain name to investigate.
+
+        - in: query
+          name: database
+          schema:
+            type: string
+            example: us
+          description: >
+            Regional database (e.g., `us`, `uk`).  
+            [Databases ›](https://example.com/docs/databases)
+
+        - in: query
+          name: display_limit
+          schema:
+            type: integer
+            default: 10000
+            example: 10000
+            maximum: 4000000
+          description: Number of results to return.
+
+        - in: query
+          name: display_offset
+          schema:
+            type: integer
+            default: 0
+            example: 0
+          description: Skip this number of lines before starting output.
+
+        - in: query
+          name: export_escape
+          schema:
+            type: integer
+            enum: [1]
+            example: 1
+          description: If set to `1`, wraps output columns in double quotes.
+
+        - in: query
+          name: display_date
+          schema:
+            type: string
+            pattern: '^\d{6}15$'
+            example: 20240315
+          description: >
+            Month to show report for. Format: `YYYYMM15`.  
+            Example: `20240315` for March 2024.
+
+        - in: query
+          name: export_columns
+          schema:
+            type: string
+            example: Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac,Sh,Sv
+          description: >
+            Comma-separated list of columns to export.  
+            [Columns ›](https://example.com/docs/columns)
+
+        - in: query
+          name: display_sort
+          schema:
+            type: string
+            enum: [rk_asc, rk_desc, or_asc, or_desc, ot_asc, ot_desc]
+            example: rk_desc
+          description: >
+            Sort the results by a specific column.  
+            [Sortings ›](https://example.com/docs/sortings)
+
+      responses:
+        '200':
+          description: CSV response with domain keyword rankings
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: |
+                Database;Domain;Rank;Organic Keywords;Organic Traffic;Organic Cost;Adwords Keywords;Adwords Traffic;Adwords Cost;PLA keywords;PLA uniques
+                us;apple.com;17;16464474;149904314;169865994;128201;2419518;2807373;38208;1583
+
+        '400':
+          description: Bad Request – Missing or invalid parameters
+        '401':
+          description: Unauthorized – Invalid API key
+        '500':
+          description: Server Error – Please try again later
+
+  /apis/v4/projects/v0:
+    get:
+      summary: ProjectsList
+      tags:
+        - Projects
+      operationId: ProjectsList
+      description: >
+        This request allows you to get a list of all projects.
+
+      responses:
+        '200':
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          example: "mysite.com"
+                        domain_unicode:
+                          type: string
+                          example: "mysite.com"
+                        tools:
+                          type: array
+                          items:
+                            type: string
+                          example: [ ]
+                        project_id:
+                          type: integer
+                          example: 643526670
+                        project_name:
+                          type: string
+                          example: "myproject"
+                        owner_id:
+                          type: integer
+                          example: 123456780
+                        permission:
+                          type: array
+                          items:
+                            type: string
+                          example: [ "OWNER" ]
+              example:
+                projects:
+                  - url: "mysite.com"
+                    domain_unicode: "mysite.com"
+                    tools: [ ]
+                    project_id: 643526670
+                    project_name: "myproject"
+                    owner_id: 123456780
+                    permission:
+                      - "OWNER"
+
+        '401':
+          description: Unauthorized – Invalid or missing API key
+        '500':
+          description: Internal server error
+
+  /apis/v4/projects/v0/:project_id:
+    get:
+      summary: GetProject
+      tags:
+        - Projects
+      description: This request allows you to get information regarding a project.
+      parameters:
+        - name: project_id
+          in: path
+          description: An automatically generated unique identifier for the project. Learn how to get your project ID.
+          required: true
+          schema:
+            type: integer
+            format: uint64
+      responses:
+        '200':
+          description: Project information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project_id:
+                    type: integer
+                    format: uint64
+                    description: An automatically generated unique identifier for the project.
+                  project_name:
+                    type: string
+                    description: The name of the project.
+                  url:
+                    type: string
+                    description: The domain the project is set up for.
+                  tools:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tool:
+                          type: string
+                    description: List of project tools set up in the project.
+                  owner_id:
+                    type: integer
+                    format: uint64
+                    description: The user ID number of the project's owner.
+                  permission:
+                    type: string
+                    description:
+                      The project permissions the user making the API call has. Could be OWNER, READ, WRITE, CORP_ADMIN_READ, CORP_ADMIN_WRITE.
+                  domain_unicode:
+                    type: string
+                    description: The domain the project is set up for, in Unicode.
+              example:
+                project_id: 643526670
+                project_name: "myproject"
+                url: "mysite.com"
+                tools:
+                  - tool: "tracking"
+                owner_id: 123456780
+                permission: "OWNER"
+                domain_unicode: "mysite.com"
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Project not found."
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error."
+
+components: {}

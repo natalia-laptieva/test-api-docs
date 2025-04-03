@@ -1,0 +1,3 @@
+apis:
+  sem-api-test:
+    root: ./openapi/sem-api-test.yaml
